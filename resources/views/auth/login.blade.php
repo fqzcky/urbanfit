@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Admin - UrbanFit</title>
+    <title>Login Admin - Urban Sneakers</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light d-flex align-items-center vh-100">
@@ -12,7 +12,7 @@
         <div class="row justify-content-center">
             <div class="col-md-4">
                 <div class="card shadow-sm border-0 rounded-4 p-4">
-                    <h3 class="text-center fw-bold mb-4">URBANFIT.</h3>
+                    <h3 class="text-center fw-bold mb-4">URBAN SNEAKERS.</h3>
                     
                     @if ($errors->any())
                         <div class="alert alert-danger p-2 text-center small">

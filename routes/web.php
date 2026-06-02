@@ -30,3 +30,7 @@ Route::middleware('auth')->group(function () {
         
     });
 });
+
+// Halaman Publik
+Route::get('/', [App\Http\Controllers\FrontController::class, 'index'])->name('home');
+Route::get('/product/{id}', [App\Http\Controllers\FrontController::class, 'show'])->name('product.show'); // <-- Tambahkan ini

@@ -32,4 +32,19 @@ class FrontController extends Controller
         
         return view('front.index', compact('products', 'categories'));
     }
+
+    // Menampilkan Halaman Detail Produk
+    public function show($id)
+    {
+        $product = Product::with(['category', 'galleries'])->findOrFail($id);
+        
+        // Bonus: Ambil 4 produk acak dari kategori yang sama (kecuali produk ini sendiri)
+        $relatedProducts = Product::where('category_id', $product->category_id)
+                                  ->where('id', '!=', $id)
+                                  ->inRandomOrder()
+                                  ->take(4)
+                                  ->get();
+        
+        return view('front.show', compact('product', 'relatedProducts'));
+    }
 }

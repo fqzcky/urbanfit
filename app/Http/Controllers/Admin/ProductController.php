@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ProductGallery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -37,21 +38,22 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validasi keamanan (pastikan format input sesuai)
+        // 1. Validasi
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'name'        => 'required|string|max:255',
             'price'       => 'required|integer|min:0',
             'stock'       => 'required|integer|min:0',
             'description' => 'nullable|string',
-            'image'       => 'required|image|mimes:jpeg,png,jpg|max:2048', // Maksimal 2MB
+            'image'       => 'required|image|mimes:jpeg,png,jpg|max:2048', // Foto Utama
+            'galleries.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Foto Tambahan (Multiple)
         ]);
 
-        // 2. Proses upload gambar ke folder 'storage/app/public/products'
+        // 2. Upload foto utama
         $imagePath = $request->file('image')->store('products', 'public');
 
-        // 3. Simpan semua data ke tabel 'products'
-        Product::create([
+        // 3. Simpan data produk dan tampung hasilnya di variabel $product
+        $product = Product::create([
             'category_id' => $request->category_id,
             'name'        => $request->name,
             'description' => $request->description,
@@ -60,9 +62,22 @@ class ProductController extends Controller
             'image'       => $imagePath,
         ]);
 
-        // 4. Kembalikan pengguna ke halaman tabel dengan pesan sukses
+        // 4. Jika ada upload foto tambahan (galeri)
+        if ($request->hasFile('galleries')) {
+            foreach ($request->file('galleries') as $galleryImage) {
+                // Simpan fisik file ke folder 'galleries'
+                $galleryPath = $galleryImage->store('galleries', 'public');
+                
+                // Simpan path-nya ke tabel product_galleries
+                ProductGallery::create([
+                    'product_id' => $product->id,
+                    'image'      => $galleryPath,
+                ]);
+            }
+        }
+
         return redirect()->route('admin.products.index')
-                         ->with('success', 'Produk baru berhasil ditambahkan beserta fotonya!');
+                         ->with('success', 'Produk dan galeri foto berhasil ditambahkan!');
     }
 
     /**

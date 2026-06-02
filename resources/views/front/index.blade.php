@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UrbanFit - Katalog Streetwear</title>
+    <title>Urban Sneakers - Katalog Sepatu Premium</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .card-img-top { height: 250px; object-fit: cover; background-color: #f8f9fa; }
@@ -16,13 +16,13 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold fs-4" href="{{ route('home') }}">URBANFIT.</a>
+            <a class="navbar-brand fw-bold fs-4" href="{{ route('home') }}">URBAN SNEAKERS.</a>
         </div>
     </nav>
 
     <div class="container mt-5 mb-4 text-center">
         <h1 class="fw-bold display-5">Koleksi Terbaru</h1>
-        <p class="text-muted">Jelajahi rilisan terbaru boxy tees, baggy denim, dan sneakers andalan kami.</p>
+        <p class="text-muted">Jelajahi rilisan terbaru sepatu running, basketball, dan casual sneakers untuk pria & wanita.</p>
     </div>
 
     <div class="container mb-4">
@@ -53,14 +53,16 @@
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
             @forelse ($products as $product)
             <div class="col">
-                <div class="card h-100 shadow-sm border-0 rounded-4 card-hover">
-                    <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top rounded-top-4" alt="{{ $product->name }}">
-                    <div class="card-body text-center">
-                        <span class="badge bg-secondary mb-2">{{ $product->category->name }}</span>
-                        <h6 class="card-title fw-bold text-truncate" title="{{ $product->name }}">{{ $product->name }}</h6>
-                        <p class="card-text text-danger fw-bold fs-5">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
+                <a href="{{ route('product.show', $product->id) }}" class="text-decoration-none text-dark">
+                    <div class="card h-100 shadow-sm border-0 rounded-4 card-hover">
+                        <img src="{{ asset('storage/' . $product->image) }}" class="card-img-top rounded-top-4" alt="{{ $product->name }}">
+                        <div class="card-body text-center">
+                            <span class="badge bg-secondary mb-2">{{ $product->category->name }}</span>
+                            <h6 class="card-title fw-bold text-truncate" title="{{ $product->name }}">{{ $product->name }}</h6>
+                            <p class="card-text text-danger fw-bold fs-5">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
             
             @empty

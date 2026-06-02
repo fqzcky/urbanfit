@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Produk - UrbanFit Admin</title>
+    <title>Tambah Produk - Urban Sneakers Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
@@ -58,9 +58,16 @@
                                 <textarea name="description" class="form-control" rows="3"></textarea>
                             </div>
 
-                            <div class="mb-4">
-                                <label class="form-label">Foto Produk (JPG/PNG)</label>
-                                <input type="file" name="image" class="form-control" accept="image/*" required>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Foto Utama (JPG/PNG) <span class="text-danger">*</span></label>
+                                    <input type="file" name="image" class="form-control" accept="image/*" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Foto Tambahan (Opsional, Bisa Pilih Banyak)</label>
+                                    <input type="file" name="galleries[]" class="form-control" accept="image/*" multiple>
+                                    <div class="form-text">Tekan dan tahan tombol <strong>CTRL</strong> saat memilih foto untuk mengupload lebih dari satu.</div>
+                                </div>
                             </div>
 
                             <button type="submit" class="btn btn-dark w-100 fw-bold">Simpan Produk & Upload</button>
