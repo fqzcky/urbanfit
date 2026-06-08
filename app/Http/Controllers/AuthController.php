@@ -21,13 +21,21 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
+        if (\Illuminate\Support\Facades\Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('/admin/dashboard');
+
+            // CEK SIAPA YANG LOGIN
+            if (auth()->user()->email === 'admin@urbansneakers.com') {
+                // Jika admin, masuk ke dashboard
+                return redirect()->route('admin.dashboard');
+            } else {
+                // Jika pembeli biasa, kembalikan ke halaman utama
+                return redirect()->route('home')->with('success', 'Selamat datang kembali!');
+            }
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
+            'email' => 'Kombinasi email dan password salah.',
         ])->onlyInput('email');
     }
 

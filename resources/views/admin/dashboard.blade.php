@@ -3,113 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - Urban Sneakers</title>
+    <title>Admin Dashboard - Urban Sneakers</title>
+    
+    <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f4f7f6; /* Abu-abu super muda untuk kontras */
+            color: #1a1a1a; 
+            overflow-x: hidden;
+        }
+        
+        /* 1. SIDEBAR (KIRI) */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 260px;
+            background-color: #000000;
+            color: #ffffff;
+            padding-top: 30px;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        .sidebar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -1px;
+            text-align: center;
+            margin-bottom: 40px;
+            display: block;
+            color: #fff;
+            text-decoration: none;
+        }
+        .nav-link-custom {
+            color: #888888;
+            font-weight: 600;
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+        .nav-link-custom:hover, .nav-link-custom.active {
+            color: #ffffff;
+            background-color: #1a1a1a;
+            border-left: 4px solid #ffffff;
+        }
+        .nav-link-custom i { font-size: 1.2rem; }
+
+        /* 2. MAIN CONTENT (KANAN) */
+        .main-content {
+            margin-left: 260px;
+            padding: 30px 40px;
+            min-height: 100vh;
+        }
+        
+        /* 3. KARTU STATISTIK */
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #eaeaea;
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.02);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+        .stat-value { font-weight: 800; font-size: 1.8rem; line-height: 1.1; margin: 0; }
+        .stat-label { color: #777; font-weight: 600; font-size: 0.9rem; margin: 0; }
+
+        /* Top Navbar Admin */
+        .admin-topbar {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border: 1px solid #eaeaea;
+            margin-bottom: 30px;
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 shadow-sm mb-5">
-        <div class="container">
-            <a class="navbar-brand fw-bold fs-4" href="#">URBAN SNEAKERS ADMIN</a>
-            <div class="d-flex">
-                <a href="{{ route('admin.products.index') }}" class="btn btn-outline-light me-2 fw-bold">Kelola Produk</a>
-                <a href="{{ route('home') }}" target="_blank" class="btn btn-light fw-bold">Lihat Web Klien</a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mb-5">
-        @php
-            // Menghitung total ringkasan
-            $totalProducts = \App\Models\Product::count();
-            $totalCategories = \App\Models\Category::count();
-            $lowStock = \App\Models\Product::where('stock', '<', 10)->count();
-
-            // Mengambil data untuk grafik (Kategori beserta jumlah produknya)
-            $categories = \App\Models\Category::withCount('products')->get();
+    <!-- SIDEBAR NAVIGATION -->
+    <div class="sidebar shadow-lg">
+        <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">URBAN ADMIN.</a>
+        
+        <div class="d-flex flex-column gap-2">
+            <a href="{{ route('admin.dashboard') }}" class="nav-link-custom active">
+                <i class="bi bi-grid-1x2-fill"></i> Dashboard Utama
+            </a>
+            <a href="{{ route('admin.products.index') }}" class="nav-link-custom">
+                <i class="bi bi-box-seam-fill"></i> Manajemen Produk
+            </a>
+            <a href="{{ route('admin.transactions.index') }}" class="nav-link-custom">
+                <i class="bi bi-receipt"></i> Data Pesanan
+            </a>
             
-            // Memisahkan nama kategori dan jumlahnya ke dalam format array untuk Chart.js
-            $labels = $categories->pluck('name');
-            $dataCounts = $categories->pluck('products_count');
-        @endphp
-
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
-                    <h6 class="text-muted fw-bold text-uppercase tracking-wide">Total Sepatu</h6>
-                    <h2 class="display-4 fw-bold text-dark mt-2">{{ $totalProducts }}</h2>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
-                    <h6 class="text-muted fw-bold text-uppercase tracking-wide">Kategori Aktif</h6>
-                    <h2 class="display-4 fw-bold text-dark mt-2">{{ $totalCategories }}</h2>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
-                    <h6 class="text-muted fw-bold text-uppercase tracking-wide">Stok Menipis (< 10)</h6>
-                    <h2 class="display-4 fw-bold text-danger mt-2">{{ $lowStock }}</h2>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-lg-8 mx-auto">
-                <div class="card border-0 shadow-sm rounded-4 p-4">
-                    <h5 class="fw-bold mb-4 text-center">Distribusi Katalog per Kategori</h5>
-                    <canvas id="categoryChart" height="150"></canvas>
-                </div>
-            </div>
+            <hr class="border-secondary my-3 mx-4">
+            
+            <a href="{{ route('home') }}" target="_blank" class="nav-link-custom">
+                <i class="bi bi-shop"></i> Lihat Web Toko
+            </a>
+            
+            <!-- Tombol Keluar Aman -->
+            <form action="{{ route('logout') }}" method="POST" class="mt-auto mb-4 mx-4">
+                @csrf
+                <button type="submit" class="btn btn-outline-light w-100 fw-bold rounded-pill">
+                    <i class="bi bi-box-arrow-left me-2"></i> Keluar
+                </button>
+            </form>
         </div>
     </div>
 
-    <script>
-        // Menerima data dari PHP backend ke JavaScript frontend
-        const chartLabels = {!! json_encode($labels) !!};
-        const chartData = {!! json_encode($dataCounts) !!};
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-content">
+        
+        <!-- TOPBAR -->
+        <div class="admin-topbar">
+            <div>
+                <h5 class="fw-bold m-0">Selamat Datang, Komandan!</h5>
+                <small class="text-muted fw-bold">Berikut adalah ringkasan performa toko hari ini.</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-dark px-3 py-2 rounded-pill fw-bold"><i class="bi bi-shield-lock-fill me-1"></i> Admin Privileges</span>
+            </div>
+        </div>
 
-        // Konfigurasi Chart.js
-        const ctx = document.getElementById('categoryChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar', // Kamu bisa ubah ini menjadi 'doughnut' atau 'pie' nanti
-            data: {
-                labels: chartLabels,
-                datasets: [{
-                    label: 'Jumlah Model Sepatu',
-                    data: chartData,
-                    backgroundColor: [
-                        'rgba(33, 37, 41, 0.85)',  // Hitam/Dark (Casual)
-                        'rgba(220, 53, 69, 0.85)', // Merah (Basketball)
-                        'rgba(25, 135, 84, 0.85)'  // Hijau (Running)
-                    ],
-                    borderColor: [
-                        'rgba(33, 37, 41, 1)',
-                        'rgba(220, 53, 69, 1)',
-                        'rgba(25, 135, 84, 1)'
-                    ],
-                    borderWidth: 0,
-                    borderRadius: 6 // Membuat ujung grafik batangnya melengkung elegan
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false // Sembunyikan legenda agar lebih bersih
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1 // Angka Y-axis selalu bulat (bukan 0.5)
-                        }
-                    }
-                }
-            }
-        });
-    </script>
+        <!-- STATISTIK KOTAK (DINAMIS DARI DATABASE) -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon text-primary"><i class="bi bi-box-seam"></i></div>
+                    <div>
+                        <p class="stat-label">Total Produk</p>
+                        <!-- Mengambil data dinamis total produk -->
+                        <h3 class="stat-value">{{ number_format($totalProducts, 0, ',', '.') }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon text-success"><i class="bi bi-bag-check"></i></div>
+                    <div>
+                        <p class="stat-label">Pesanan Berhasil</p>
+                        <!-- Mengambil data dinamis pesanan berhasil -->
+                        <h3 class="stat-value">{{ number_format($successfulOrders, 0, ',', '.') }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon text-danger"><i class="bi bi-wallet2"></i></div>
+                    <div>
+                        <p class="stat-label">Total Pendapatan</p>
+                        <!-- Mengambil data dinamis pendapatan dan format ke Rupiah -->
+                        <h3 class="stat-value">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AREA KONTEN TAMBAHAN / GRAFIK -->
+        <div class="bg-white p-5 border rounded-4 text-center">
+            <i class="bi bi-bar-chart-line text-muted" style="font-size: 4rem;"></i>
+            <h4 class="fw-bold mt-3">Area Grafik Penjualan</h4>
+            <p class="text-muted">Siap diintegrasikan dengan fitur laporan penjualan lanjutan.</p>
+        </div>
+        
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

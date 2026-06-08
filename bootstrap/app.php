@@ -10,8 +10,17 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        //
+    ->withMiddleware(function (Middleware $middleware) {
+        
+        // Daftarkan nama middleware admin
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\IsAdmin::class,
+        ]);
+
+        // Pengecualian CSRF untuk Midtrans (yang kita buat sebelumnya)
+        $middleware->validateCsrfTokens(except: [
+            '/midtrans/callback',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

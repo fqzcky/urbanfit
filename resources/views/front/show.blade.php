@@ -4,129 +4,305 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $product->name }} - Urban Sneakers</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        .thumbnail-img { height: 100px; object-fit: cover; cursor: pointer; transition: 0.3s; opacity: 0.6; }
-        .thumbnail-img:hover, .thumbnail-active { opacity: 1; border: 2px solid #212529; }
-        .related-img { height: 200px; object-fit: cover; }
-        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; transition: 0.3s; }
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fcfcfc;
+            color: #1a1a1a;
+        }
+
+        /* Navbar Style (Sama dengan Index) */
+        .navbar-custom { background-color: #000000; border-bottom: 1px solid #222; }
+        .navbar-brand-custom { font-weight: 800; letter-spacing: -1px; }
+
+        /* Breadcrumb Premium */
+        .breadcrumb { font-weight: 600; font-size: 0.9rem; }
+        .breadcrumb-item a { color: #888; transition: color 0.2s; }
+        .breadcrumb-item a:hover { color: #000; }
+
+        /* Gallery Styling */
+        .gallery-main {
+            background-color: #f4f4f4;
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            padding-bottom: 100%; /* 1:1 Aspect Ratio */
+        }
+        .gallery-main img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .gallery-main:hover img {
+            transform: scale(1.05); /* Efek Zoom saat dihover */
+        }
+        
+        .thumbnail-img {
+            background-color: #f4f4f4;
+            border-radius: 16px;
+            height: 100px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            opacity: 0.6;
+        }
+        .thumbnail-img:hover { opacity: 1; }
+        .thumbnail-active {
+            opacity: 1;
+            border: 2px solid #000000;
+        }
+
+        /* Product Info Styling */
+        .product-title {
+            font-weight: 800;
+            font-size: 2.5rem;
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 15px;
+        }
+        .product-price {
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: #000000;
+        }
+        .desc-text {
+            color: #666;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        /* Premium Size Selector (Tile Style) */
+        .size-selector input[type="radio"] { display: none; }
+        .size-label {
+            display: inline-block;
+            border: 1.5px solid #e0e0e0;
+            background-color: #fff;
+            color: #1a1a1a;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 12px 0;
+            width: 70px;
+            text-align: center;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .size-label:hover { border-color: #000; }
+        .size-selector input[type="radio"]:checked + .size-label {
+            background-color: #000000;
+            border-color: #000000;
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        /* Related Products (Sama dengan Index) */
+        .product-card-wrapper { transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        .product-card-wrapper:hover { transform: translateY(-8px); }
+        .card-box {
+            border: 1px solid #f0f0f0;
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            height: 100%; display: flex; flex-direction: column;
+            transition: box-shadow 0.4s ease;
+        }
+        .product-card-wrapper:hover .card-box { box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
+        .img-container { position: relative; background-color: #f8f9fa; padding-bottom: 100%; overflow: hidden; }
+        .img-container img {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; transition: transform 0.6s ease;
+        }
+        .product-card-wrapper:hover .img-container img { transform: scale(1.06); }
+        .card-info { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold fs-4" href="{{ route('home') }}">URBAN SNEAKERS.</a>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-3 sticky-top shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand navbar-brand-custom fs-3 text-white" href="{{ route('home') }}">URBAN SNEAKERS.</a>
+            
+            <div class="d-flex gap-2 align-items-center">
+                <a href="{{ route('cart.index') }}" class="btn btn-outline-light position-relative rounded-pill px-4 fw-bold">
+                    <i class="bi bi-bag-heart-fill me-1"></i> Keranjang
+                    @if(session('cart') && count(session('cart')) > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-dark">
+                            {{ count(session('cart')) }}
+                        </span>
+                    @endif
+                </a>
+                
+                @auth
+                    <a href="{{ route('user.orders') }}" class="btn btn-warning fw-bold rounded-pill px-3">Riwayat Pesanan</a>
+                    <form action="{{ route('logout') }}" method="POST" class="m-0">
+                        @csrf
+                        <button type="submit" class="btn btn-danger fw-bold rounded-pill px-3">Keluar</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-link text-white text-decoration-none fw-bold px-3">Masuk</a>
+                    <a href="{{ route('register') }}" class="btn btn-light fw-bold rounded-pill px-4">Daftar</a>
+                @endauth
+            </div>
         </div>
     </nav>
 
     <div class="container mt-5 mb-5">
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none text-muted">Katalog</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('home', ['kategori' => $product->category->slug]) }}" class="text-decoration-none text-muted">{{ $product->category->name }}</a></li>
-                <li class="breadcrumb-item active fw-bold" aria-current="page">{{ $product->name }}</li>
+                <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-decoration-none">Katalog</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('home', ['kategori' => $product->category->slug]) }}" class="text-decoration-none">{{ $product->category->name }}</a></li>
+                <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">{{ $product->name }}</li>
             </ol>
         </nav>
 
-        <div class="row bg-white p-4 p-md-5 rounded-4 shadow-sm border-0">
-            <!-- Sisi Kiri: Galeri Foto -->
-            <div class="col-md-6 mb-4 mb-md-0">
-                <!-- Gambar Utama -->
-                <div class="mb-3 rounded-4 overflow-hidden border">
-                    <img id="mainImage" src="{{ asset('storage/' . $product->image) }}" class="img-fluid w-100" style="object-fit: cover; height: 500px;" alt="{{ $product->name }}">
+        <div class="row g-5">
+            <div class="col-lg-6">
+                <div class="gallery-main mb-3">
+                    <img id="mainImage" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
                 </div>
                 
-                <!-- Layout Thumbnail Dinamis -->
                 <div class="row g-2">
-                    <!-- Thumbnail 1: Foto Utama (Bawaan) -->
                     <div class="col-3">
-                        <img src="{{ asset('storage/' . $product->image) }}" class="img-fluid w-100 h-100 rounded-3 thumbnail-img thumbnail-active" onclick="changeImage(this, '{{ asset('storage/' . $product->image) }}')" alt="Angle 1">
+                        <img src="{{ asset('storage/' . $product->image) }}" class="img-fluid w-100 thumbnail-img thumbnail-active" onclick="changeImage(this, '{{ asset('storage/' . $product->image) }}')" alt="Angle 1">
                     </div>
-                    
-                    <!-- Thumbnail 2, 3, dst: Dari Tabel Galleries -->
                     @foreach($product->galleries as $gallery)
                     <div class="col-3">
-                        <img src="{{ asset('storage/' . $gallery->image) }}" class="img-fluid w-100 h-100 rounded-3 thumbnail-img" onclick="changeImage(this, '{{ asset('storage/' . $gallery->image) }}')" alt="Angle Tambahan">
+                        <img src="{{ asset('storage/' . $gallery->image) }}" class="img-fluid w-100 thumbnail-img" onclick="changeImage(this, '{{ asset('storage/' . $gallery->image) }}')" alt="Angle Tambahan">
                     </div>
                     @endforeach
                 </div>
             </div>
             
-            <div class="col-md-6 d-flex flex-column justify-content-center px-md-5">
-                <span class="badge bg-dark w-auto mb-3 px-3 py-2" style="width: fit-content; letter-spacing: 1px;">{{ strtoupper($product->category->name) }}</span>
-                <h1 class="fw-bold mb-3 display-6">{{ $product->name }}</h1>
-                <h2 class="text-danger fw-bold mb-4">Rp {{ number_format($product->price, 0, ',', '.') }}</h2>
+            <div class="col-lg-6 d-flex flex-column pt-3">
+                <div class="d-flex gap-2 mb-3">
+                    <span class="badge bg-dark px-3 py-2 rounded-pill shadow-sm" style="letter-spacing: 1px;">{{ strtoupper($product->category->name) }}</span>
+                    <span class="badge bg-white border border-dark text-dark px-3 py-2 rounded-pill shadow-sm" style="letter-spacing: 1px;">{{ strtoupper($product->gender) }}</span>
+                </div>
                 
-                <hr class="text-muted">
+                <h1 class="product-title">{{ $product->name }}</h1>
+                <div class="product-price mb-4">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
                 
-                <h6 class="fw-bold mt-2">Deskripsi Produk</h6>
-                <p class="text-muted mb-4" style="line-height: 1.8;">
-                    {{ $product->description ?? 'Koleksi esensial dengan material premium dan potongan yang dirancang untuk kenyamanan maksimal sepanjang hari.' }}
+                <p class="desc-text mb-4">
+                    {{ $product->description ?? 'Koleksi esensial dengan material premium dan siluet modern yang dirancang untuk kenyamanan maksimal dan ketahanan di lingkungan urban.' }}
                 </p>
                 
-                <div class="mb-4 bg-light p-3 rounded-3 border">
-                    <span class="text-muted">Ketersediaan:</span> 
+                <div class="d-flex align-items-center mb-5">
+                    <span class="fw-bold me-2">Status:</span>
                     @if($product->stock > 10)
-                        <span class="text-success fw-bold ms-2"><i class="bi bi-check-circle-fill"></i> In Stock ({{ $product->stock }})</span>
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill"><i class="bi bi-check-circle-fill me-1"></i> Tersedia ({{ $product->stock }})</span>
                     @elseif($product->stock > 0)
-                        <span class="text-warning fw-bold ms-2">Hampir Habis! Sisa {{ $product->stock }}</span>
+                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-3 py-2 rounded-pill"><i class="bi bi-exclamation-circle-fill me-1"></i> Sisa {{ $product->stock }} Pasang</span>
                     @else
-                        <span class="text-danger fw-bold ms-2">Sold Out</span>
+                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2 rounded-pill"><i class="bi bi-x-circle-fill me-1"></i> Sold Out</span>
                     @endif
                 </div>
 
-                <div class="d-grid gap-2 d-md-flex mt-2">
-                    @if($product->stock > 0)
-                        <button class="btn btn-dark btn-lg px-5 py-3 fw-bold rounded-pill shadow-sm w-100">
-                            Masukkan Keranjang
-                        </button>
-                    @else
-                        <button class="btn btn-secondary btn-lg px-5 py-3 fw-bold rounded-pill w-100" disabled>
-                            Stok Habis
-                        </button>
-                    @endif
-                </div>
+                <form action="{{ route('cart.add', $product->id) }}" method="POST" class="mt-auto">
+                    @csrf
+                    
+                    <div class="d-flex justify-content-between align-items-end mb-3">
+                        <h6 class="fw-bold m-0">Pilih Ukuran (EU)</h6>
+                        <a href="#" class="text-muted small text-decoration-none text-decoration-underline" data-bs-toggle="modal" data-bs-target="#sizeGuideModal">Lihat Panduan Ukuran</a>
+                    </div>
+                    
+                    <div class="size-selector d-flex gap-2 flex-wrap mb-4">
+                        @if(is_array($product->sizes) && count($product->sizes) > 0)
+                            @foreach($product->sizes as $size)
+                                <div>
+                                    <input type="radio" name="size" id="size_{{ $size }}" value="{{ $size }}" required>
+                                    <label class="size-label shadow-sm" for="size_{{ $size }}">{{ $size }}</label>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="w-100 p-3 bg-light rounded-3 text-muted text-center fw-bold border">
+                                Ukuran belum dikonfigurasi admin.
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="mt-2">
+                        @if($product->stock > 0)
+                            @if(is_array($product->sizes) && count($product->sizes) > 0)
+                                <button type="submit" class="btn btn-dark btn-lg w-100 py-3 fw-bold rounded-pill shadow-sm" style="font-size: 1.1rem; transition: all 0.3s;">
+                                    <i class="bi bi-cart-plus-fill me-2"></i> Tambahkan ke Keranjang
+                                </button>
+                            @else
+                                <button type="button" class="btn btn-secondary btn-lg w-100 py-3 fw-bold rounded-pill" disabled>
+                                    Ukuran Tidak Tersedia
+                                </button>
+                            @endif
+                        @else
+                            <button type="button" class="btn btn-outline-danger btn-lg w-100 py-3 fw-bold rounded-pill" disabled>
+                                Produk Habis Terjual
+                            </button>
+                        @endif
+                    </div>
+                </form>
             </div>
         </div>
 
         @if($relatedProducts->count() > 0)
-        <div class="mt-5 pt-5 border-top">
-            <h4 class="fw-bold mb-4">Mungkin Kamu Juga Suka</h4>
-            <div class="row row-cols-2 row-cols-md-4 g-4">
-                @foreach($relatedProducts as $related)
-                <div class="col">
-                    <a href="{{ route('product.show', $related->id) }}" class="text-decoration-none text-dark">
-                        <div class="card h-100 shadow-sm border-0 rounded-4 card-hover">
-                            <img src="{{ asset('storage/' . $related->image) }}" class="card-img-top related-img rounded-top-4" alt="{{ $related->name }}">
-                            <div class="card-body text-center p-3">
-                                <h6 class="card-title fw-bold text-truncate m-0" style="font-size: 0.9rem;">{{ $related->name }}</h6>
-                                <p class="card-text text-danger fw-bold mt-1 mb-0" style="font-size: 0.9rem;">Rp {{ number_format($related->price, 0, ',', '.') }}</p>
-                            </div>
-                        </div>
-                    </a>
+        <div class="mt-5 pt-5">
+            </div>
+        @endif
+    </div> <div class="modal fade" id="sizeGuideModal" tabindex="-1" aria-labelledby="sizeGuideModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold" id="sizeGuideModalLabel">Panduan Ukuran Sepatu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                @endforeach
+                <div class="modal-body p-4">
+                    <table class="table table-bordered text-center align-middle mb-0">
+                        <thead class="table-light fw-bold">
+                            <tr>
+                                <th>EU</th>
+                                <th>US (Men)</th>
+                                <th>UK</th>
+                                <th>CM (Panjang)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>39</td><td>6.5</td><td>6</td><td>24.5</td></tr>
+                            <tr><td>40</td><td>7</td><td>6.5</td><td>25.0</td></tr>
+                            <tr><td>41</td><td>8</td><td>7.5</td><td>26.0</td></tr>
+                            <tr><td>42</td><td>8.5</td><td>8</td><td>26.5</td></tr>
+                            <tr><td>43</td><td>9.5</td><td>9</td><td>27.5</td></tr>
+                            <tr><td>44</td><td>10</td><td>9.5</td><td>28.0</td></tr>
+                            <tr><td>45</td><td>11</td><td>10.5</td><td>29.0</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="text-muted small mt-3 mb-0">* Ini adalah panduan ukuran standar universal. Untuk model tertentu (seperti Nike Air Max atau seri ASICS Gel), disarankan untuk naik setengah ukuran (upsize).</p>
+                </div>
             </div>
         </div>
-        @endif
     </div>
-<script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
         function changeImage(element, newSrc) {
-            // 1. Ubah gambar utama ke gambar yang diklik
             document.getElementById('mainImage').src = newSrc;
             
-            // 2. Hapus border hitam dari semua thumbnail
             let thumbnails = document.getElementsByClassName('thumbnail-img');
             for(let i = 0; i < thumbnails.length; i++) {
                 thumbnails[i].classList.remove('thumbnail-active');
             }
-            
-            // 3. Tambahkan border hitam ke thumbnail yang sedang diklik
             element.classList.add('thumbnail-active');
         }
     </script>
-</body>
-</html>
 </body>
 </html>

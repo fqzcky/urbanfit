@@ -39,21 +39,33 @@
                     </thead>
                     <tbody>
                         @foreach($products as $index => $product)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $product->name }}</td>
-                            <td>{{ $product->category->name }}</td>
-                            <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
-                            <td>{{ $product->stock }}</td>
-                            <td class="text-center">
-                                <a href="#" class="btn btn-sm btn-primary">Edit</a>
-                                <form action="#" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus?')">Hapus</button>
-                                </form>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $product->name }}</td>
+                        
+                        <td>
+                            {{ $product->category->name }} <br>
+                            <small class="text-muted fw-bold">
+                                @php
+                                    $genderLabel = strtoupper($product->gender);
+                                    if($genderLabel == 'PRIA') $genderLabel = 'MEN';
+                                    if($genderLabel == 'WANITA') $genderLabel = 'WOMEN';
+                                @endphp
+                                {{ $genderLabel }}
+                            </small>
+                        </td>
+                        
+                        <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
+                        <td>{{ $product->stock }}</td>
+                        <td class="text-center">
+                            <a href="#" class="btn btn-sm btn-primary">Edit</a>
+                            <form action="#" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus?')">Hapus</button>
+                            </form>
+                        </td>
+                    </tr>
                         @endforeach
                     </tbody>
                 </table>

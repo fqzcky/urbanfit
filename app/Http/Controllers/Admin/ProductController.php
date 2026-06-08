@@ -38,46 +38,46 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validasi
+        // 1. Validasi Input Data (Disamakan huruf besar di depan)
         $request->validate([
-            'category_id' => 'required|exists:categories,id',
             'name'        => 'required|string|max:255',
-            'price'       => 'required|integer|min:0',
+            'description' => 'required|string',
+            'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
-            'description' => 'nullable|string',
-            'image'       => 'required|image|mimes:jpeg,png,jpg|max:2048', // Foto Utama
-            'galleries.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Foto Tambahan (Multiple)
+            'sizes'       => 'required|array|min:1',
+            'category_id' => 'required|exists:categories,id',
+            'gender'      => 'required|in:Men,Women,Unisex', // PENYAKIT GENDER DISEMBUHKAN DI SINI
+            'image'       => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'galleries.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
         ]);
 
-        // 2. Upload foto utama
+        // 2. Proses Upload Foto Utama
         $imagePath = $request->file('image')->store('products', 'public');
 
-        // 3. Simpan data produk dan tampung hasilnya di variabel $product
-        $product = Product::create([
-            'category_id' => $request->category_id,
+        // 3. Simpan Data Produk Baru ke Database
+        $product = \App\Models\Product::create([
             'name'        => $request->name,
             'description' => $request->description,
             'price'       => $request->price,
             'stock'       => $request->stock,
+            'sizes'       => $request->sizes, // TANPA json_encode() AGAR TIDAK ERROR DI HALAMAN DETAIL
+            'category_id' => $request->category_id,
+            'gender'      => $request->gender,
             'image'       => $imagePath,
         ]);
 
-        // 4. Jika ada upload foto tambahan (galeri)
+        // 4. Proses Upload Galeri Tambahan (Jika Ada)
         if ($request->hasFile('galleries')) {
-            foreach ($request->file('galleries') as $galleryImage) {
-                // Simpan fisik file ke folder 'galleries'
-                $galleryPath = $galleryImage->store('galleries', 'public');
-                
-                // Simpan path-nya ke tabel product_galleries
-                ProductGallery::create([
-                    'product_id' => $product->id,
-                    'image'      => $galleryPath,
+            foreach ($request->file('galleries') as $file) {
+                $galleryPath = $file->store('galleries', 'public');
+                $product->galleries()->create([
+                    'image' => $galleryPath
                 ]);
             }
         }
 
-        return redirect()->route('admin.products.index')
-                         ->with('success', 'Produk dan galeri foto berhasil ditambahkan!');
+        // 5. Kembalikan ke halaman manajemen produk
+        return redirect()->route('admin.products.index')->with('success', 'Produk baru berhasil ditambahkan!');
     }
 
     /**
@@ -100,40 +100,70 @@ class ProductController extends Controller
     }
 
     // Memproses Perubahan Data
-    public function update(Request $request, string $id)
+    // Memproses Perubahan Data
+    public function update(Request $request, $id)
     {
+        // 1. Validasi Input Data (Disamakan huruf besar di depan sesuai edit.blade.php)
         $request->validate([
-            'category_id' => 'required|exists:categories,id',
             'name'        => 'required|string|max:255',
-            'price'       => 'required|integer|min:0',
+            'description' => 'required|string',
+            'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
-            'description' => 'nullable|string',
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Boleh kosong jika tidak ganti foto
+            'sizes'       => 'required|array|min:1',
+            'category_id' => 'required|exists:categories,id',
+            'gender'      => 'required|in:Men,Women,Unisex', // SENSITIF HURUF BESAR KECIL!
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'galleries.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
         ]);
 
-        $product = Product::findOrFail($id);
-        $imagePath = $product->image; // Simpan path gambar lama secara default
+        // 2. Ambil Data Produk dari Database
+        $product = \App\Models\Product::findOrFail($id);
 
-        // Jika admin mengupload foto baru
+        // 3. Proses Upload Foto Utama Jika Ada Penggantian
+        $imagePath = $product->image;
         if ($request->hasFile('image')) {
-            // Hapus foto lama dari server
-            if (Storage::disk('public')->exists($product->image)) {
-                Storage::disk('public')->delete($product->image);
+            // Hapus foto lama jika filenya ada di storage
+            if ($product->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($product->image)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image);
             }
-            // Simpan foto baru
             $imagePath = $request->file('image')->store('products', 'public');
         }
 
+        // 4. Perbarui Data Produk ke Database
         $product->update([
-            'category_id' => $request->category_id,
             'name'        => $request->name,
             'description' => $request->description,
             'price'       => $request->price,
             'stock'       => $request->stock,
+            'sizes'       => $request->sizes, 
+            'category_id' => $request->category_id,
+            'gender'      => $request->gender,
             'image'       => $imagePath,
         ]);
 
-        return redirect()->route('admin.products.index')->with('success', 'Data produk berhasil diperbarui!');
+        // 5. Proses Upload Galeri Tambahan Jika Ada Penggantian
+        if ($request->hasFile('galleries')) {
+            // Hapus riwayat galeri lama di tabel ProductGallery (jika relasi model kamu ada)
+            if (method_exists($product, 'galleries')) {
+                foreach ($product->galleries as $gallery) {
+                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($gallery->image)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($gallery->image);
+                    }
+                    $gallery->delete();
+                }
+
+                // Masukkan foto galeri baru
+                foreach ($request->file('galleries') as $file) {
+                    $galleryPath = $file->store('galleries', 'public');
+                    $product->galleries()->create([
+                        'image' => $galleryPath
+                    ]);
+                }
+            }
+        }
+
+        // 6. Kembalikan ke halaman manajemen produk dengan notifikasi sukses
+        return redirect()->route('admin.products.index')->with('success', 'Produk berhasil diperbarui!');
     }
 
     // Menghapus Data Produk
