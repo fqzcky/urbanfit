@@ -81,7 +81,7 @@ To run this project locally, follow these steps:
 
 ## 👨‍💻 Author
 
-**Muhammad Faiq Zacky** * Informatics Student at Universitas Amikom Yogyakarta
+**Muhammad Faiq Zacky** *Informatics Student at Universitas Amikom Yogyakarta*
 * GitHub: [@fqzcky](https://github.com/fqzcky)
 
 ---
