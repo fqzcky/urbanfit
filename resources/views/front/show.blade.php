@@ -127,6 +127,23 @@
         }
         .product-card-wrapper:hover .img-container img { transform: scale(1.06); }
         .card-info { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
+
+        /* STYLE KHUSUS KARTU PRODUK SERUPA (Sama dengan Halaman Utama) */
+        .product-card-wrapper { transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); text-decoration: none !important; }
+        .product-card-wrapper:hover { transform: translateY(-8px); }
+        .card-box { border: 1px solid #f0f0f0; background: #ffffff; border-radius: 20px; overflow: hidden; height: 100%; display: flex; flex-direction: column; transition: box-shadow 0.4s ease; }
+        .product-card-wrapper:hover .card-box { box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
+        .img-container { position: relative; background-color: #f8f9fa; padding-bottom: 100%; overflow: hidden; }
+        .img-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        .product-card-wrapper:hover .img-container img { transform: scale(1.06); }
+        .badge-overlay { position: absolute; top: 15px; left: 15px; z-index: 2; display: flex; flex-direction: column; gap: 5px; }
+        .badge-custom { font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-info { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; text-align: left; }
+        .product-title { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 12px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.8rem; }
+        .card-footer-custom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+        .product-price { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.5px; color: #000000; line-height: 1; margin: 0; }
+        .arrow-btn { width: 38px; height: 38px; border-radius: 50%; background-color: #000000; color: #ffffff; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; transition: background-color 0.3s, transform 0.3s; }
+        .product-card-wrapper:hover .arrow-btn { background-color: #e63329; transform: rotate(-45deg); }
     </style>
 </head>
 <body>
@@ -253,12 +270,9 @@
                 </form>
             </div>
         </div>
-
-        @if($relatedProducts->count() > 0)
-        <div class="mt-5 pt-5">
-            </div>
-        @endif
-    </div> <div class="modal fade" id="sizeGuideModal" tabindex="-1" aria-labelledby="sizeGuideModalLabel" aria-hidden="true">
+    </div> 
+    
+    <div class="modal fade" id="sizeGuideModal" tabindex="-1" aria-labelledby="sizeGuideModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-4 border-0 shadow-lg">
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
@@ -291,6 +305,56 @@
         </div>
     </div>
 
+    <!-- ======================================================== -->
+    <!-- SECTION PRODUK SERUPA (RELATED PRODUCTS)                 -->
+    <!-- ======================================================== -->
+    <div class="container my-5 pt-5 border-top">
+        <div class="mb-4 text-start">
+            <p class="text-uppercase text-muted small fw-bold mb-1" style="letter-spacing: 2px;">Mungkin Anda Suka</p>
+            <h3 class="fw-extrabold text-dark" style="font-family: 'Plus Jakarta Sans'; font-weight: 800; letter-spacing: -1px;">PRODUK SERUPA</h3>
+        </div>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            @forelse ($relatedProducts as $index => $related)
+            <div class="col product-card-wrapper" data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
+                <a href="{{ route('product.show', $related->id) }}" class="text-decoration-none">
+                    <div class="card-box">
+                        <div class="img-container">
+                            <div class="badge-overlay">
+                                <span class="badge-custom bg-dark text-white shadow-sm">{{ $related->category->name }}</span>
+                                <span class="badge-custom bg-white text-dark border border-light shadow-sm">
+                                @php
+                                $genderLabel = strtoupper($related->gender);
+                                if($genderLabel == 'PRIA') $genderLabel = 'MEN';
+                                if($genderLabel == 'WANITA') $genderLabel = 'WOMEN';
+                                @endphp
+                                {{ $genderLabel }}
+                                </span>
+                            </div>
+                            <img src="{{ asset('storage/' . $related->image) }}" alt="{{ $related->name }}">
+                        </div>
+                        
+                        <div class="card-info">
+                            <h6 class="product-title" title="{{ $related->name }}">{{ $related->name }}</h6>
+                            
+                            <div class="card-footer-custom border-top pt-3">
+                                <div class="product-price">Rp {{ number_format($related->price, 0, ',', '.') }}</div>
+                                <div class="arrow-btn"><i class="bi bi-arrow-right-short"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            @empty
+            <!-- State kalau tidak ada produk lain di kategori yang sama -->
+            <div class="col-12 py-4">
+                <p class="text-muted small italic">Belum ada koleksi produk serupa lainnya untuk kategori ini.</p>
+            </div>
+            @endforelse
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
@@ -304,5 +368,34 @@
             element.classList.add('thumbnail-active');
         }
     </script>
+
+    <a href="https://wa.me/6288229978003?text=Halo%20Admin%20Urban%20Sneakers,%20saya%20mau%20tanya%20tentang%20sepatu..." target="_blank" class="wa-floating-btn" data-aos="zoom-in" data-aos-offset="0">
+        <i class="bi bi-whatsapp"></i>
+    </a>
+
+    <style>
+        .wa-floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background-color: #25D366; /* Hijau Khas WhatsApp */
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.4);
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .wa-floating-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            color: white;
+            box-shadow: 0 15px 25px rgba(37, 211, 102, 0.5);
+        }
+    </style>
 </body>
 </html>
